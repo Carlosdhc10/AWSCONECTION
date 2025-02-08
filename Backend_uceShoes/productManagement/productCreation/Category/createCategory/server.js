@@ -8,7 +8,7 @@ const  sequelize  = require('./config/database');
 const Category = require('./models/Category');
 const PORT = process.env.PORT || 3005;
 
-// Middleware test creation category 03
+// Middleware test creation category 04
 app.use(cors());
 app.use(express.json());
 

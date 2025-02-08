@@ -5,7 +5,7 @@ on:
     paths:
       - 'Backend_uceShoes/productManagement/productCreation/Category/createCategory/**'
     branches:
-      - TestConectionProducts,main
+      - main
 
 jobs:
   build-and-deploy:

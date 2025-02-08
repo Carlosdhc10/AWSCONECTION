@@ -8,8 +8,8 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
-    name: Build and Push Docker Image
+  build-and-push:
+    name: 📦 Build and Push Docker Image
     runs-on: ubuntu-latest
 
     steps:
@@ -26,15 +26,16 @@ jobs:
       - name: 📦 Build and push Docker image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/category-create:latest \
+            --build-arg PORT=${{ secrets.SERVER_PORT_CREATE_CATEGORY }} \
             -f Backend_uceShoes/productManagement/productCreation/Category/createCategory/Dockerfile \
             Backend_uceShoes/productManagement/productCreation/Category/createCategory
 
           docker push ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
   deploy:
-    name: Deploy to EC2
+    name: 🚀 Deploy to EC2
     runs-on: ubuntu-latest
-    needs: build-and-deploy
+    needs: build-and-push
 
     steps:
       - name: 🚀 Connect to EC2 and Deploy Category Create Service
@@ -50,7 +51,7 @@ jobs:
               echo "📦 Installing Docker..."
               sudo yum update -y
               sudo yum install -y docker
-              sudo service docker start
+              sudo systemctl start docker
               sudo usermod -a -G docker $USER
             fi
 
@@ -79,10 +80,13 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
             echo "🔍 Verifying deployment..."
+            sleep 5
             if sudo docker ps -q -f name=category-create | grep category-create; then
               echo "✅ Deployment successful: Category Create Service is running."
             else
-              echo "❌ Deployment failed: Fetching logs..."
+              echo "❌ Deployment failed: Checking logs..."
               sudo docker logs category-create
+              echo "⚠️ Checking Docker container status..."
+              sudo docker ps -a
               exit 1
             fi

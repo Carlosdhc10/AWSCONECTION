@@ -14,7 +14,7 @@ const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
-// Swagger configuration
+// Swagger configuration test 01 getall category
 const swaggerOptions = {
     definition: {
         openapi: '3.0.0',

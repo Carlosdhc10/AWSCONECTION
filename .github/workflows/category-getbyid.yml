@@ -54,6 +54,12 @@ jobs:
               sudo usermod -a -G docker $USER
             fi
 
+            echo "🔍 Checking if netcat (nc) is installed..."
+            if ! command -v nc &> /dev/null; then
+              echo "📦 Installing netcat..."
+              sudo yum install -y nc
+            fi
+
             echo "🛑 Stopping and removing previous container..."
             sudo docker stop category-getbyid || true
             sudo docker rm category-getbyid || true
@@ -69,15 +75,6 @@ jobs:
               echo "❌ Database connection failed. Deployment aborted."
               exit 1
             fi
-
-            echo "🔍 Verificando variables de entorno:"
-            echo "PORT=${{ secrets.SERVER_PORT_GET_CATEGORY_BY_ID }}"
-            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}"
-            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}"
-            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
-            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
-            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
-            echo "DB_DIALECT=postgres"
 
             echo "🚀 Running the new container..."
             sudo docker run -d \
@@ -101,4 +98,4 @@ jobs:
               echo "⚠️ Checking Docker container status..."
               sudo docker ps -a
               exit 1
-            fi  
+            fi

@@ -5,7 +5,7 @@ const sequelize = require('./config/database'); // Database connection
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 
-// Import routes
+// Import routes test 01 update 
 const updateCategoryRoutes = require('./routes/updateCategoryRoute'); // Route to update categories
 
 const app = express();

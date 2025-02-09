@@ -25,12 +25,12 @@ jobs:
 
       - name: 📦 Build and push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/categorycreate:latest \
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/category-create:latest \
             --build-arg PORT=${{ secrets.SERVER_PORT_CREATE_CATEGORY }} \
             -f Backend_uceShoes/productManagement/productCreation/Category/createCategory/Dockerfile \
             Backend_uceShoes/productManagement/productCreation/Category/createCategory
 
-          docker push ${{ secrets.DOCKER_USERNAME }}/categorycreate:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
   deploy:
     name: 🚀 Deploy to EC2
@@ -56,18 +56,18 @@ jobs:
             fi
 
             echo "🛑 Stopping and removing previous container..."
-            sudo docker stop categorycreate || true
-            sudo docker rm categorycreate || true
+            sudo docker stop category-create || true
+            sudo docker rm category-create || true
 
             echo "🧹 Removing old Docker images..."
             sudo docker image prune -af
 
             echo "📥 Pulling the latest Docker image..."
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/categorycreate:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
             echo "🚀 Running the new container..."
             sudo docker run -d \
-              --name categorycreate \
+              --name category-create \
               -p ${{ secrets.SERVER_PORT_CREATE_CATEGORY }}:${{ secrets.SERVER_PORT_CREATE_CATEGORY }} \
               -e PORT=${{ secrets.SERVER_PORT_CREATE_CATEGORY }} \
               -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
@@ -76,15 +76,15 @@ jobs:
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
               -e DB_DIALECT=postgres \              
-              ${{ secrets.DOCKER_USERNAME }}/categorycreate:latest
+              ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
             echo "🔍 Verifying deployment..."
             sleep 5
-            if sudo docker ps -q -f name=category-create | grep categorycreate; then
+            if sudo docker ps -q -f name=category-create | grep category-create; then
               echo "✅ Deployment successful: Category Create Service is running."
             else
               echo "❌ Deployment failed: Checking logs..."
-              sudo docker logs categorycreate
+              sudo docker logs category-create
               echo "⚠️ Checking Docker container status..."
               sudo docker ps -a
               exit 1

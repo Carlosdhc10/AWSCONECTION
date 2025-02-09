@@ -22,13 +22,7 @@ jobs:
 
       - name: 📦 Build & Push Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/graphql:latest Backend_uceShoes/productManagement/productSearchGraphQL \
-            --build-arg DB_HOST=${{ secrets.DB_HOST }} \
-            --build-arg DB_PORT=${{ secrets.DB_PORT }} \
-            --build-arg DB_USER=${{ secrets.DB_USER }} \
-            --build-arg DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-            --build-arg DB_NAME=${{ secrets.DB_NAME }}
-
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/graphql:latest Backend_uceShoes/productManagement/productSearchGraphQL
           docker push ${{ secrets.DOCKER_USERNAME }}/graphql:latest
 
   deploy:
@@ -52,13 +46,16 @@ jobs:
             echo "📥 Pulling the latest image from Docker Hub..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/graphql:latest
 
+            echo "🔍 Checking if MySQL is reachable..."
+            if ! nc -zv ${{ secrets.MYSQL_HOST }} ${{ secrets.MYSQL_PORT }}; then
+              echo "❌ MySQL is not reachable. Deployment aborted."
+              exit 1
+            fi
+
             echo "🚀 Running the new container..."
             sudo docker run -d --name graphql \
               --restart=always \
               -p ${{ secrets.SERVER_PORT_GRAPHQL }}:${{ secrets.SERVER_PORT_GRAPHQL }} \
-              -e DB_HOST=${{ secrets.DB_HOST }} \
-              -e DB_PORT=${{ secrets.DB_PORT }} \
-              -e DB_USER=${{ secrets.DB_USER }} \
-              -e DB_PASSWORD=${{ secrets.DB_PASSWORD }} \
-              -e DB_NAME=${{ secrets.DB_NAME }} \
+              -e DATABASE_URL="mysql+pymysql://${{ secrets.MYSQL_USER }}:${{ secrets.MYSQL_PASSWORD }}@${{ secrets.MYSQL_HOST }}:${{ secrets.MYSQL_PORT }}/product_search_development" \
+              -e GRAPHQL_PORT=${{ secrets.SERVER_PORT_GRAPHQL }} \
               ${{ secrets.DOCKER_USERNAME }}/graphql:latest

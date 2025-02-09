@@ -19,7 +19,7 @@ ARG GRAPHQL_PORT=3010
 ENV GRAPHQL_PORT=${GRAPHQL_PORT}
 
 # Expose port using environment variable
-EXPOSE ${GRAPHQL_PORT}
+EXPOSE 3010
 
 # Running Flask Server with GraphQL
 CMD ["sh", "-c", "python server.py"]

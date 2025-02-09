@@ -5,7 +5,7 @@ const sequelize = require('./config/database'); // Database connection
 const swaggerUi = require('swagger-ui-express');
 const swaggerJsDoc = require('swagger-jsdoc');
 
-// Import routes test 02 get all ID 
+// Import routes test 03 get all ID 
 const categoryByIdRoutes = require('./routes/getCategoryByIdRoute');
 
 const app = express();

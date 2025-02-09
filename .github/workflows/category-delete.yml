@@ -31,12 +31,12 @@ jobs:
           docker push ${{ secrets.DOCKER_USERNAME }}/category-delete:latest
 
   deploy:
-    name: Deploy to EC2
+    name: 🚀 Deploy to EC2
     runs-on: ubuntu-latest
     needs: build-and-deploy
 
     steps:
-      - name: 🚀 Connect to EC2 and Deploy Category Delete Service
+      - name: 🚀 Conectar a EC2 y desplegar Category Delete Service
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.EC2_HOST_DELETE_CATEGORY }}
@@ -49,7 +49,7 @@ jobs:
               echo "📦 Installing Docker..."
               sudo yum update -y
               sudo yum install -y docker
-              sudo service docker start
+              sudo systemctl start docker
               sudo usermod -a -G docker $USER
             fi
 
@@ -62,30 +62,34 @@ jobs:
             fi
 
             echo "🧹 Removing old Docker images..."
+            sudo docker rmi ${{ secrets.DOCKER_USERNAME }}/category-delete:latest || true
             sudo docker image prune -af || echo "⚠️ No images to remove."
 
             echo "📥 Pulling the latest Docker image..."
-            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-delete:latest
+            sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-delete:latest || exit 1
 
             echo "🚀 Running the new container..."
             sudo docker run -d \
               --name category-delete \
               -p ${{ secrets.SERVER_PORT_DELETE_CATEGORY }}:${{ secrets.SERVER_PORT_DELETE_CATEGORY }} \
+              -e PORT=${{ secrets.SERVER_PORT_DELETE_CATEGORY }} \
               -e POSTGRES_HOST=${{ secrets.POSTGRES_HOST }} \
               -e POSTGRES_PORT=${{ secrets.POSTGRES_PORT }} \
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-              --restart always \
+              -e DB_DIALECT=postgres \
               ${{ secrets.DOCKER_USERNAME }}/category-delete:latest
 
             echo "🔍 Verifying deployment..."
+            sleep 5
             if sudo docker ps -q -f name=category-delete; then
               echo "✅ Deployment successful: Category Delete Service is running."
             else
-              echo "❌ Deployment failed: Check logs for errors."
+              echo "❌ Deployment failed: Checking logs..."
+              sudo docker logs category-delete
               exit 1
-            fi 
+            fi
 
-      - name: 🔐 Log out of Docker Hub
+      - name: 🔐 Cerrar sesión en Docker Hub
         run: docker logout

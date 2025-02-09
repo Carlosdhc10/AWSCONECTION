@@ -4,7 +4,7 @@ from my_graphql_schema.resolvers import Query
 
 app = Flask(__name__)
 
-# Define el esquema GraphQL test 02
+# Define el esquema GraphQL test 03
 schema = Schema(query=Query)
 
 @app.route("/graphql", methods=["GET", "POST"])

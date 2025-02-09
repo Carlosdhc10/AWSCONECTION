@@ -65,6 +65,15 @@ jobs:
             echo "📥 Pulling the latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
+            echo "🔍 Verificando variables de entorno:"
+            echo "PORT=${{ secrets.SERVER_PORT_CREATE_CATEGORY }}"
+            echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}"
+            echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}"
+            echo "POSTGRES_USER=${{ secrets.POSTGRES_USER }}"
+            echo "POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }}"
+            echo "POSTGRES_DB=${{ secrets.POSTGRES_DB }}"
+            echo "DB_DIALECT=postgres"
+
             echo "🚀 Running the new container..."
             sudo docker run -d \
               --name category-create \
@@ -75,12 +84,12 @@ jobs:
               -e POSTGRES_USER=${{ secrets.POSTGRES_USER }} \
               -e POSTGRES_PASSWORD=${{ secrets.POSTGRES_PASSWORD }} \
               -e POSTGRES_DB=${{ secrets.POSTGRES_DB }} \
-              -e DB_DIALECT=postgres \              
+              -e DB_DIALECT=postgres \
               ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
             echo "🔍 Verifying deployment..."
             sleep 5
-            if sudo docker ps -q -f name=category-create | grep category-create; then
+            if [ "$(sudo docker ps -q -f name=category-create)" ]; then
               echo "✅ Deployment successful: Category Create Service is running."
             else
               echo "❌ Deployment failed: Checking logs..."
@@ -88,4 +97,5 @@ jobs:
               echo "⚠️ Checking Docker container status..."
               sudo docker ps -a
               exit 1
-            fi
+            fi  
+

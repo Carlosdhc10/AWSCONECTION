@@ -64,6 +64,12 @@ jobs:
             echo "📥 Pulling the latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-getbyid:latest
 
+            echo "🔍 Verifying database connection before running the container..."
+            if ! nc -zv ${{ secrets.POSTGRES_HOST }} ${{ secrets.POSTGRES_PORT }}; then
+              echo "❌ Database connection failed. Deployment aborted."
+              exit 1
+            fi
+
             echo "🔍 Verificando variables de entorno:"
             echo "PORT=${{ secrets.SERVER_PORT_GET_CATEGORY_BY_ID }}"
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}"

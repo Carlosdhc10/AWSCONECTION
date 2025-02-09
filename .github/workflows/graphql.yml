@@ -79,6 +79,7 @@ jobs:
             echo "🚀 Running the new container..."
             sudo docker run -d \
               --name graphql \
+              --restart=always \
               -p ${{ secrets.SERVER_PORT_GRAPHQL }}:${{ secrets.SERVER_PORT_GRAPHQL }} \
               -e DATABASE_URL="mysql+pymysql://${{ secrets.MYSQL_USER }}:${{ secrets.MYSQL_PASSWORD }}@${{ secrets.MYSQL_HOST }}:${{ secrets.MYSQL_PORT }}/product_search_development" \
               -e GRAPHQL_PORT=${{ secrets.SERVER_PORT_GRAPHQL }} \

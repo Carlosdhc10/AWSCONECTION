@@ -65,7 +65,13 @@ jobs:
             echo "📥 Pulling the latest Docker image..."
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
-            echo "🔍 Verificando variables de entorno:"
+            echo "🔍 Verifying database connection before running the container..."
+            if ! nc -zv ${{ secrets.POSTGRES_HOST }} ${{ secrets.POSTGRES_PORT }}; then
+              echo "❌ Database connection failed. Deployment aborted."
+              exit 1
+            fi
+
+            echo "🔍 Verifying environment variables:"
             echo "PORT=${{ secrets.SERVER_PORT_CREATE_CATEGORY }}"
             echo "POSTGRES_HOST=${{ secrets.POSTGRES_HOST }}"
             echo "POSTGRES_PORT=${{ secrets.POSTGRES_PORT }}"
@@ -88,14 +94,13 @@ jobs:
               ${{ secrets.DOCKER_USERNAME }}/category-create:latest
 
             echo "🔍 Verifying deployment..."
-            sleep 5
             if [ "$(sudo docker ps -q -f name=category-create)" ]; then
               echo "✅ Deployment successful: Category Create Service is running."
             else
               echo "❌ Deployment failed: Checking logs..."
-              sudo docker logs category-create
+              sudo docker logs category-create > deployment_logs.txt
+              cat deployment_logs.txt
               echo "⚠️ Checking Docker container status..."
               sudo docker ps -a
               exit 1
-            fi  
-
+            fi

@@ -71,7 +71,7 @@ jobs:
             sudo docker pull ${{ secrets.DOCKER_USERNAME }}/graphql:latest
 
             echo "🔍 Checking if MySQL is reachable..."
-            if ! nc -zv ${{ secrets.MYSQL_HOST }} ${{ secrets.MYSQL_PORT }}; then
+            if ! nc -zv ${{ secrets.DB_HOST }} ${{ secrets.DB_PORT }}; then
               echo "❌ MySQL is not reachable. Deployment aborted."
               exit 1
             fi
@@ -81,7 +81,7 @@ jobs:
               --name graphql \
               --restart=always \
               -p ${{ secrets.SERVER_PORT_GRAPHQL }}:${{ secrets.SERVER_PORT_GRAPHQL }} \
-              -e DATABASE_URL="mysql+pymysql://${{ secrets.MYSQL_USER }}:${{ secrets.MYSQL_PASSWORD }}@${{ secrets.MYSQL_HOST }}:${{ secrets.MYSQL_PORT }}/product_search_development" \
+              -e DATABASE_URL="mysql+pymysql://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}" \
               -e GRAPHQL_PORT=${{ secrets.SERVER_PORT_GRAPHQL }} \
               ${{ secrets.DOCKER_USERNAME }}/graphql:latest
 
